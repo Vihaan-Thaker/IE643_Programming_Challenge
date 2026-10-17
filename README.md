@@ -1,6 +1,6 @@
 # IE643 Programming Challenge (2026)
 
-Course project for **IE643 Deep Learning**: predict one of **11 class labels (0–10)** for every sample in a test set
+Programming Challenge for **IE643 Deep Learning**: predict one of **11 class labels (0–10)** for every sample in a test set
 that mixes clean and deformed (corrupted) samples.
 
 ## The challenge
