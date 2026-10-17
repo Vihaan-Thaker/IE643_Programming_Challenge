@@ -1,0 +1,9 @@
+# Competition data (not redistributed)
+ie-643-2026-programming-challenge/
+*.csv
+
+# Jupyter / OS / editor clutter
+.ipynb_checkpoints/
+anaconda_projects/
+.DS_Store
+__pycache__/
