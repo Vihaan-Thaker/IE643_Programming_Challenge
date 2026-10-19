@@ -66,6 +66,11 @@ Everything currently lives in one notebook. Sections:
    - **Cross-validation:** stratified 3-fold, repeated 5 times (15 splits). Train and validation keep the same class proportions.
    - **Leakage control:** normalization and PCA are re-fitted inside each fold on the training part only.
    - **Metrics:** k-NN accuracy and balanced accuracy (k = 1, 5) on held-out points, a paired MLP − linear comparison, learning curves, and 2-D plots.
+   - **Pseudo-labels (7.7):** classifiers on each 2-D map label the 72 clean unlabelled points. Output: `pseudo_labels/*_silhouette.csv`.
+8. **Pseudo-labels from the PCA space directly:** the same classifiers, fitted on the 118-D PCA coordinates instead of a 2-D map.
+   - **CV balanced accuracy** (same 15 folds): logistic regression (C = 0.01) 0.76, 5-NN (cosine) 0.74. The 2-D maps reach about 0.5.
+   - **Changes from 7.7:** no per-PC standardization, cosine distance for k-NN, stronger L2 for logistic regression.
+   - **Output:** `pseudo_labels/*_pca118.csv`.
 
 ## Setup
 
