@@ -10,3 +10,6 @@ __pycache__/
 
 # Virtual environment
 .venv/
+
+# Model checkpoints (kept locally for the Drive hand-in)
+checkpoints/
