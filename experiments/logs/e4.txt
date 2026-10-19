@@ -1,0 +1,6 @@
+(422s)
+baseline: {'balanced accuracy': 0.682, 'accuracy': 0.775, 'accuracy: clean': 0.927, 'accuracy: deformed': 0.781, 'accuracy: far': 0.592} | bal std 0.032
+student : {'balanced accuracy': 0.708, 'accuracy': 0.792, 'accuracy: clean': 0.949, 'accuracy: deformed': 0.8, 'accuracy: far': 0.595} | bal std 0.039
+paired balanced accuracy: +0.026 (sd 0.039, se 0.010), higher in 12/15 runs
+paired accuracy: +0.017 (sd 0.025, se 0.007), higher in 12/15 runs
+

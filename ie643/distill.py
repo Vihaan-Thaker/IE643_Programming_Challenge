@@ -11,7 +11,7 @@ Leakage control: arrays cover all 2076 training rows, with fold = -1 for unlabel
 the teachers are trained only on labelled rows outside fold k, and the student only sees those rows plus the
 unlabelled rows, so nothing about fold k's labels reaches either model.
 """
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 
 import numpy as np
 import pandas as pd
@@ -124,13 +124,16 @@ class MultiTaskMLP(mlp.MLP):
         return self.net[-1](h), self.g_head(h)
 
 
-def fit_student(X_lab, y_lab, X_unl, Q_unl, w_unl, cfg, scfg, seed=0, Q_lab=None, G_lab=None, G_unl=None):
+def fit_student(X_lab, y_lab, X_unl, Q_unl, w_unl, cfg, scfg, seed=0, Q_lab=None, G_lab=None, G_unl=None,
+                X_ext=None, Q_ext=None, w_ext=None, lam_ext=0.0):
     """One student MLP on the main features. Loss terms, each weighted by its share of the batch:
 
     - labelled rows: cfg.loss (logit-adjusted cross-entropy) on the true label;
     - labelled rows, if scfg.lam_lab: lam_lab x soft cross-entropy against out-of-fold teacher targets Q_lab;
     - unlabelled rows: scfg.lam x soft cross-entropy against teacher targets Q_unl (rows weighted by w_unl);
-    - all rows, if scfg.beta: beta x mean squared error of a second head predicting the standardized G.
+    - all rows that have G, if scfg.beta: beta x mean squared error of a second head predicting the standardized G;
+    - extra rows without G or label (self-training on test rows), if lam_ext: lam_ext x soft cross-entropy against
+      Q_ext (rows weighted by w_ext).
 
     With scfg.adjust the soft losses use the same prior shift as logit-adjusted cross-entropy: softmax(logits + shift)
     is matched to the teacher's training-prior posterior, so every term trains the raw logits to be uniform-prior
@@ -139,7 +142,8 @@ def fit_student(X_lab, y_lab, X_unl, Q_unl, w_unl, cfg, scfg, seed=0, Q_lab=None
     """
     torch.manual_seed(seed)
     rng = np.random.default_rng(seed)
-    X_all = np.vstack([X_lab, X_unl])
+    n_ext = 0 if X_ext is None else len(X_ext)
+    X_all = np.vstack([X_lab, X_unl] + ([X_ext] if n_ext else []))
     std = X_all.std(axis=0)
     mean, std = X_all.mean(axis=0), np.where(std > 0, std, 1.0)
     if scfg.beta:
@@ -150,13 +154,14 @@ def fit_student(X_lab, y_lab, X_unl, Q_unl, w_unl, cfg, scfg, seed=0, Q_lab=None
         model = mlp.MLP(mean, std, cfg)
     hard_loss = mlp.make_loss(cfg, y_lab)
     opt = torch.optim.AdamW(model.parameters(), lr=cfg.lr, weight_decay=cfg.weight_decay)
-    n_lab, n = len(X_lab), len(X_all)
+    n_lab, n_g, n = len(X_lab), len(X_lab) + len(X_unl), len(X_all)     # rows: labelled | unlabelled | extra
     steps_per_epoch = int(np.ceil(n / cfg.batch_size))
     sched = torch.optim.lr_scheduler.CosineAnnealingLR(opt, T_max=cfg.epochs * steps_per_epoch)
     X_t = torch.as_tensor(X_all)
     yl = torch.as_tensor(y_lab, dtype=torch.long)
     Qu, wu = torch.as_tensor(Q_unl), torch.as_tensor(w_unl)
     Ql = torch.as_tensor(Q_lab) if Q_lab is not None else None
+    Qe, we = (torch.as_tensor(Q_ext), torch.as_tensor(w_ext)) if n_ext else (None, None)
     shift = torch.as_tensor(prior_shift(cfg, y_lab)) if scfg.adjust else torch.zeros(N_CLASSES)
 
     def soft_ce(logits, q):
@@ -170,7 +175,9 @@ def fit_student(X_lab, y_lab, X_unl, Q_unl, w_unl, cfg, scfg, seed=0, Q_lab=None
             else:
                 logits = model(X_t[idx])
             is_lab = torch.as_tensor(idx < n_lab)
-            il, iu = idx[idx < n_lab], idx[idx >= n_lab] - n_lab
+            is_unl = torch.as_tensor((idx >= n_lab) & (idx < n_g))
+            is_ext = torch.as_tensor(idx >= n_g)
+            il, iu, ie = idx[idx < n_lab], idx[(idx >= n_lab) & (idx < n_g)] - n_lab, idx[idx >= n_g] - n_g
             loss = 0.0
             if len(il):
                 share = len(il) / len(idx)
@@ -179,14 +186,58 @@ def fit_student(X_lab, y_lab, X_unl, Q_unl, w_unl, cfg, scfg, seed=0, Q_lab=None
                     loss = loss + share * scfg.lam_lab * soft_ce(logits[is_lab], Ql[il]).mean()
             if len(iu) and scfg.lam:
                 share = len(iu) / len(idx)
-                loss = loss + share * scfg.lam * (wu[iu] * soft_ce(logits[~is_lab], Qu[iu])).mean()
+                loss = loss + share * scfg.lam * (wu[iu] * soft_ce(logits[is_unl], Qu[iu])).mean()
+            if len(ie) and lam_ext:
+                share = len(ie) / len(idx)
+                loss = loss + share * lam_ext * (we[ie] * soft_ce(logits[is_ext], Qe[ie])).mean()
             if scfg.beta:
-                loss = loss + scfg.beta * F.mse_loss(g_pred, G_z[idx])
+                has_g = idx < n_g
+                if has_g.any():
+                    share = has_g.sum() / len(idx)
+                    loss = loss + share * scfg.beta * F.mse_loss(g_pred[torch.as_tensor(has_g)], G_z[idx[has_g]])
             opt.zero_grad()
             loss.backward()
             opt.step()
             sched.step()
     return model
+
+
+def fit_final(E, G, y, fold, cfg, scfg, teacher_seeds=(0, 1, 2), student_seeds=(0, 1, 2, 3, 4),
+              X_test=None, lam_ext=0.0, T_ext=1.0, threshold_ext=0.0):
+    """Final models trained on all training rows.
+
+    - Teacher logits for the unlabelled rows: teachers on G trained on all labelled rows (averaged over seeds).
+    - Teacher logits for the labelled rows (if scfg.lam_lab): out-of-fold over the fixed folds, so they are not
+      just the memorized labels.
+    - Students: one per seed, on E of all labelled + unlabelled rows.
+    - If lam_ext > 0 (self-training): the students' averaged predictions on X_test become soft targets, and a second
+      round of students is trained with the test rows as extra rows (see run_selftrain_cv).
+    """
+    labelled, unlabelled = fold >= 0, y < 0
+    L_unl = np.zeros((unlabelled.sum(), N_CLASSES))
+    for s in teacher_seeds:
+        teacher, _ = mlp.fit(G[labelled], y[labelled], cfg, seed=s)
+        L_unl += mlp.predict_logits(teacher, G[unlabelled]) / len(teacher_seeds)
+    L_lab = np.zeros((len(y), N_CLASSES))
+    if scfg.lam_lab:
+        for k in range(N_FOLDS):
+            for s in teacher_seeds:
+                teacher, _ = mlp.fit(G[labelled & (fold != k)], y[labelled & (fold != k)], cfg, seed=s)
+                L_lab[fold == k] += mlp.predict_logits(teacher, G[fold == k]) / len(teacher_seeds)
+    shift = prior_shift(cfg, y[labelled])
+    Q_unl, w_unl = teacher_targets(L_unl, scfg, shift)
+    Q_lab = teacher_targets(L_lab[labelled], scfg, shift)[0] if scfg.lam_lab else None
+    common = dict(Q_lab=Q_lab, G_lab=G[labelled], G_unl=G[unlabelled])
+    students = [fit_student(E[labelled], y[labelled], E[unlabelled], Q_unl, w_unl, cfg, scfg, s, **common)
+                for s in student_seeds]
+    info = {"unlabelled": L_unl, "labelled_oof": L_lab[labelled]}
+    if lam_ext:
+        L_test = np.mean([mlp.predict_logits(m, X_test) for m in students], axis=0)
+        Q_ext, w_ext = teacher_targets(L_test, replace(scfg, T=T_ext, threshold=threshold_ext, hard=False), shift)
+        students = [fit_student(E[labelled], y[labelled], E[unlabelled], Q_unl, w_unl, cfg, scfg, s, **common,
+                                X_ext=X_test, Q_ext=Q_ext, w_ext=w_ext, lam_ext=lam_ext) for s in student_seeds]
+        info["stage1_test_logits"] = L_test
+    return students, info
 
 
 def run_student_cv(X, y, groups, fold, teacher_logits, cfg, scfg, seeds=(0,), G=None, teacher_oof=None):
@@ -211,3 +262,33 @@ def run_student_cv(X, y, groups, fold, teacher_logits, cfg, scfg, seeds=(0,), G=
             metrics.append({"config": scfg.name(), "seed": seed, "fold": k, "teacher-labelled rows": int(w_unl.sum()),
                             **evaluate(y[va], p.argmax(1), groups[va])})
     return pd.DataFrame(metrics), oof
+
+
+def run_selftrain_cv(X, y, groups, fold, teacher_logits, cfg, scfg, X_test, lam_ext=1.0, T_ext=1.0, threshold_ext=0.0,
+                     seeds=(0,), G=None, teacher_oof=None):
+    """Two-stage self-training (transductive), scored on the fixed folds.
+
+    Stage 1 is the normal student. Stage 2 retrains it with extra rows that have neither label nor G: the
+    validation fold and the test rows, with stage 1's predictions as soft targets. This mirrors the final model, where
+    the test rows are the extra rows. The validation labels are only used for scoring.
+    """
+    labelled, unlabelled = fold >= 0, y < 0
+    ext_cfg = replace(scfg, T=T_ext, threshold=threshold_ext, hard=False)
+    metrics = []
+    for seed in seeds:
+        for k in range(N_FOLDS):
+            tr, va = labelled & (fold != k), fold == k
+            shift = prior_shift(cfg, y[tr])
+            Q_unl, w_unl = teacher_targets(teacher_logits[k][unlabelled], scfg, shift)
+            Q_lab = teacher_targets(teacher_oof[k][tr], scfg, shift)[0] if scfg.lam_lab else None
+            common = dict(Q_lab=Q_lab, G_lab=G[tr] if scfg.beta else None, G_unl=G[unlabelled] if scfg.beta else None)
+            stage1 = fit_student(X[tr], y[tr], X[unlabelled], Q_unl, w_unl, cfg, scfg, seed, **common)
+            X_ext = np.vstack([X[va], X_test])
+            Q_ext, w_ext = teacher_targets(mlp.predict_logits(stage1, X_ext), ext_cfg, shift)
+            stage2 = fit_student(X[tr], y[tr], X[unlabelled], Q_unl, w_unl, cfg, scfg, seed, **common,
+                                 X_ext=X_ext, Q_ext=Q_ext, w_ext=w_ext, lam_ext=lam_ext)
+            for stage, model in [("stage 1", stage1), ("stage 2", stage2)]:
+                p = mlp.predict_proba(model, X[va])
+                metrics.append({"stage": stage, "seed": seed, "fold": k, "extra rows used": int(w_ext.sum()),
+                                **evaluate(y[va], p.argmax(1), groups[va])})
+    return pd.DataFrame(metrics)

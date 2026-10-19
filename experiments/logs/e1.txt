@@ -1,0 +1,11 @@
+baseline seed0 (55s): {'balanced accuracy': 0.691, 'accuracy': 0.78, 'accuracy: clean': 0.942, 'accuracy: deformed': 0.784, 'accuracy: far': 0.596}
+teacher G (47s): {'balanced accuracy': 0.832, 'accuracy': 0.877, 'accuracy: clean': 0.963, 'accuracy: deformed': 0.877, 'accuracy: far': 0.795}
+   pseudo-label class mix on unlabelled rows (fold-0 teacher): [0.379 0.02  0.013 0.078 0.054 0.105 0.12  0.077 0.02  0.098 0.035] | mean top prob 0.93, share >= 0.7: 0.91
+teacher E+G (58s): {'balanced accuracy': 0.808, 'accuracy': 0.868, 'accuracy: clean': 0.964, 'accuracy: deformed': 0.869, 'accuracy: far': 0.774}
+   pseudo-label class mix on unlabelled rows (fold-0 teacher): [0.376 0.015 0.015 0.071 0.066 0.104 0.121 0.072 0.029 0.093 0.038] | mean top prob 0.94, share >= 0.7: 0.92
+teacher G -> student (soft T=1, lam=1, threshold=0) (110s, 792 rows): {'balanced accuracy': 0.678, 'accuracy': 0.793, 'accuracy: clean': 0.92, 'accuracy: deformed': 0.801, 'accuracy: far': 0.616} | paired bal-acc diff vs baseline -0.013 (2/5 folds higher)
+teacher G -> student (soft T=2, lam=1, threshold=0) (100s, 792 rows): {'balanced accuracy': 0.687, 'accuracy': 0.794, 'accuracy: clean': 0.949, 'accuracy: deformed': 0.795, 'accuracy: far': 0.636} | paired bal-acc diff vs baseline -0.004 (2/5 folds higher)
+teacher G -> student (soft T=1, lam=0.5, threshold=0) (93s, 792 rows): {'balanced accuracy': 0.681, 'accuracy': 0.792, 'accuracy: clean': 0.92, 'accuracy: deformed': 0.798, 'accuracy: far': 0.63} | paired bal-acc diff vs baseline -0.010 (1/5 folds higher)
+teacher G -> student (hard, lam=1, threshold=0.7) (73s, 719 rows): {'balanced accuracy': 0.679, 'accuracy': 0.788, 'accuracy: clean': 0.934, 'accuracy: deformed': 0.793, 'accuracy: far': 0.616} | paired bal-acc diff vs baseline -0.013 (1/5 folds higher)
+teacher E+G -> student (soft T=1, lam=1, threshold=0) (117s, 792 rows): {'balanced accuracy': 0.677, 'accuracy': 0.786, 'accuracy: clean': 0.942, 'accuracy: deformed': 0.792, 'accuracy: far': 0.596} | paired bal-acc diff vs baseline -0.014 (1/5 folds higher)
+saved C:/Users/Admin/AppData/Local/Temp/claude/C--Users-Admin--antigravity-643-challenge/36cf98d5-c7b0-4c43-b56b-63ec5088fe96/scratchpad/pilot34.pkl

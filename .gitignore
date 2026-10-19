@@ -13,3 +13,6 @@ __pycache__/
 
 # Model checkpoints (kept locally for the Drive hand-in)
 checkpoints/
+
+# Intermediate experiment results
+experiments/cache/

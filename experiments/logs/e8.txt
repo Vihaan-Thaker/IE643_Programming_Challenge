@@ -1,0 +1,18 @@
+ridge alpha=10: mean R2 over the 384 G dims 0.254 (median 0.248, dims with R2>0.5: 27)
+   within clean: mean R2 0.107
+   within deformed: mean R2 0.232
+   within far: mean R2 -0.361
+ridge alpha=100: mean R2 over the 384 G dims 0.411 (median 0.403, dims with R2>0.5: 89)
+   within clean: mean R2 0.368
+   within deformed: mean R2 0.384
+   within far: mean R2 -0.098
+ridge alpha=1000: mean R2 over the 384 G dims 0.471 (median 0.458, dims with R2>0.5: 136)
+   within clean: mean R2 0.486
+   within deformed: mean R2 0.439
+   within far: mean R2 0.045
+(88s)
+                                        balanced accuracy  accuracy  accuracy: clean  accuracy: deformed  accuracy: far
+route
+teacher(true G) applied to predicted G              0.667     0.766            0.941               0.773          0.547
+MLP trained on predicted G                          0.657     0.755            0.928               0.760          0.561
+teacher on true G (reference)                       0.832     0.877            0.963               0.877          0.795

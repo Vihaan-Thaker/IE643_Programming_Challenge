@@ -1,0 +1,10 @@
+reference (all three channels, seed 0): {'balanced accuracy': 0.707, 'accuracy': 0.79, 'accuracy: clean': 0.942, 'accuracy: deformed': 0.796, 'accuracy: far': 0.602}
+epochs 60 (119s): {'balanced accuracy': 0.71, 'accuracy': 0.795, 'accuracy: clean': 0.942, 'accuracy: deformed': 0.802, 'accuracy: far': 0.609} | paired vs ref +0.003 (2/5)
+epochs 25 (50s): {'balanced accuracy': 0.705, 'accuracy': 0.79, 'accuracy: clean': 0.949, 'accuracy: deformed': 0.793, 'accuracy: far': 0.616} | paired vs ref -0.002 (2/5)
+wide 1024-512 (132s): {'balanced accuracy': 0.71, 'accuracy': 0.792, 'accuracy: clean': 0.941, 'accuracy: deformed': 0.798, 'accuracy: far': 0.609} | paired vs ref +0.003 (2/5)
+dropout .3 / input .1 (91s): {'balanced accuracy': 0.695, 'accuracy': 0.781, 'accuracy: clean': 0.949, 'accuracy: deformed': 0.783, 'accuracy: far': 0.61} | paired vs ref -0.012 (1/5)
+beta 3 (98s): {'balanced accuracy': 0.713, 'accuracy': 0.793, 'accuracy: clean': 0.942, 'accuracy: deformed': 0.796, 'accuracy: far': 0.63} | paired vs ref +0.007 (3/5)
+lam_lab 3 (100s): {'balanced accuracy': 0.7, 'accuracy': 0.785, 'accuracy: clean': 0.949, 'accuracy: deformed': 0.79, 'accuracy: far': 0.596} | paired vs ref -0.007 (1/5)
+T 4 (69s): {'balanced accuracy': 0.711, 'accuracy': 0.769, 'accuracy: clean': 0.941, 'accuracy: deformed': 0.778, 'accuracy: far': 0.542} | paired vs ref +0.004 (4/5)
+tau 1.5 (105s): {'balanced accuracy': 0.715, 'accuracy': 0.776, 'accuracy: clean': 0.942, 'accuracy: deformed': 0.783, 'accuracy: far': 0.568} | paired vs ref +0.008 (3/5)
+

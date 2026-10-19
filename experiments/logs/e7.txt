@@ -1,0 +1,15 @@
+== confirm tuned settings (3 seeds)
+current (beta 1) (338s): {'balanced accuracy': 0.708, 'accuracy': 0.792, 'accuracy: clean': 0.949, 'accuracy: deformed': 0.8, 'accuracy: far': 0.595}
+beta 3 (258s): {'balanced accuracy': 0.714, 'accuracy': 0.793, 'accuracy: clean': 0.949, 'accuracy: deformed': 0.799, 'accuracy: far': 0.607}
+tau 1.5 (341s): {'balanced accuracy': 0.712, 'accuracy': 0.777, 'accuracy: clean': 0.947, 'accuracy: deformed': 0.787, 'accuracy: far': 0.55}
+beta 3 + tau 1.5 (338s): {'balanced accuracy': 0.715, 'accuracy': 0.778, 'accuracy: clean': 0.944, 'accuracy: deformed': 0.788, 'accuracy: far': 0.55}
+beta 3 vs current, balanced accuracy: +0.005 (se 0.004, 7/15 higher)
+beta 3 vs current, accuracy: +0.001 (se 0.003, 7/15 higher)
+beta 3 vs current, accuracy: far: +0.012 (se 0.008, 7/15 higher)
+tau 1.5 vs current, balanced accuracy: +0.004 (se 0.004, 9/15 higher)
+tau 1.5 vs current, accuracy: -0.016 (se 0.002, 0/15 higher)
+tau 1.5 vs current, accuracy: far: -0.046 (se 0.009, 0/15 higher)
+beta 3 + tau 1.5 vs current, balanced accuracy: +0.007 (se 0.005, 9/15 higher)
+beta 3 + tau 1.5 vs current, accuracy: -0.015 (se 0.003, 1/15 higher)
+beta 3 + tau 1.5 vs current, accuracy: far: -0.045 (se 0.011, 0/15 higher)
+

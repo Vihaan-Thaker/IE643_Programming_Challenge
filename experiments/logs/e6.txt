@@ -1,0 +1,15 @@
+== self-training experiment (not for submission)
+fold 0 done (118s)
+fold 1 done (222s)
+fold 2 done (331s)
+fold 3 done (415s)
+fold 4 done (516s)
+                           balanced accuracy  accuracy  accuracy: clean  accuracy: deformed  accuracy: far  extra rows used
+variant                                                                                                                    
+stage 1 (current student)              0.707     0.790            0.942               0.796          0.602              NaN
+lam_ext 1, all rows                    0.694     0.789            0.942               0.794          0.610            746.8
+lam_ext 1, conf >= 0.7                 0.700     0.791            0.949               0.794          0.617            482.2
+lam_ext 2, conf >= 0.5                 0.697     0.794            0.949               0.798          0.624            594.6
+lam_ext 1, all rows: paired vs stage 1 -0.012 (se 0.007, 1/5 higher)
+lam_ext 1, conf >= 0.7: paired vs stage 1 -0.007 (se 0.006, 2/5 higher)
+lam_ext 2, conf >= 0.5: paired vs stage 1 -0.010 (se 0.008, 1/5 higher)

@@ -1,0 +1,7 @@
+nested teachers (113s)
+student (soft T=2, lam=2, threshold=0) (56s): {'balanced accuracy': 0.699, 'accuracy': 0.786, 'accuracy: clean': 0.941, 'accuracy: deformed': 0.793, 'accuracy: far': 0.589} | paired +0.008 (2/5) | pooled OOF, extra tau: {'+0': 0.699, '+0.5': 0.714, '+1': 0.708}
+student (soft T=1, lam=0, threshold=0, G-head beta=1) (57s): {'balanced accuracy': 0.702, 'accuracy': 0.783, 'accuracy: clean': 0.92, 'accuracy: deformed': 0.789, 'accuracy: far': 0.61} | paired +0.011 (3/5) | pooled OOF, extra tau: {'+0': 0.703, '+0.5': 0.706, '+1': 0.705}
+student (soft T=2, lam=2, threshold=0, G-head beta=1) (87s): {'balanced accuracy': 0.7, 'accuracy': 0.789, 'accuracy: clean': 0.942, 'accuracy: deformed': 0.796, 'accuracy: far': 0.595} | paired +0.009 (4/5) | pooled OOF, extra tau: {'+0': 0.7, '+0.5': 0.709, '+1': 0.713}
+student (soft T=2, lam=2, threshold=0, lam_lab=1) (110s): {'balanced accuracy': 0.704, 'accuracy': 0.791, 'accuracy: clean': 0.942, 'accuracy: deformed': 0.796, 'accuracy: far': 0.61} | paired +0.013 (4/5) | pooled OOF, extra tau: {'+0': 0.705, '+0.5': 0.714, '+1': 0.712}
+student (soft T=2, lam=2, threshold=0, lam_lab=1, G-head beta=1) (103s): {'balanced accuracy': 0.707, 'accuracy': 0.79, 'accuracy: clean': 0.942, 'accuracy: deformed': 0.796, 'accuracy: far': 0.602} | paired +0.016 (4/5) | pooled OOF, extra tau: {'+0': 0.707, '+0.5': 0.704, '+1': 0.702}
+
