@@ -12,7 +12,7 @@ One entry per experiment, as the challenge rules require. Every entry uses the f
 | 00 | 2026-10-18 | Linear probe (diagnostic only, not a submission) | E | ridge, α = 100 | 0.632 | 0.775 | 0.928 / 0.776 / 0.624 | — | `phase1_baseline_mlp.ipynb` §2 |
 | 02a | 2026-10-18 | MLP, plain cross-entropy | E | MLP B, CE | 0.657 | 0.775 | 0.928 / 0.778 / 0.608 | — | §4 |
 | 02b | 2026-10-18 | MLP, class-weighted CE | E | MLP B, weighted CE | 0.679 | 0.775 | 0.935 / 0.778 / 0.601 | — | §4 |
-| **02c** | 2026-10-18 | **Phase 1 baseline** | E | MLP B, logit-adjusted CE (τ = 1) | **0.682** | **0.775** | 0.927 / 0.781 / 0.592 | _to fill_ | §4–5 |
+| **02c** | 2026-10-18 | **Phase 1 baseline** | E | MLP B, logit-adjusted CE (τ = 1) | **0.682** | **0.775** | 0.927 / 0.781 / 0.592 | **0.6165** | §4–5 |
 
 MLP B = 768 → 512 → 256 → 11, GELU, dropout 0.5, input dropout 0.2, AdamW (lr 1e-3, weight decay 0.05), batch 64,
 40 epochs with cosine decay, standardization fitted on the training part. Rows 02a–c are means over 3 seeds × 5 folds.
@@ -62,3 +62,6 @@ against 0.662 at 40 epochs. Training loss was ~0 by epoch 10, so 40 epochs is us
 2. The networks overfit within a few epochs and become overconfident. Calibrate them before distillation or pseudo-labelling.
 3. **Label shift:** on test, the model predicts class 0 for only 12.2% of rows, while on validation folds it reproduces the training share (35.1% vs 35.0%). The linear probe shows the same drop (40.3% → 21.6%). The test set very likely has far fewer class-0 rows, possibly close to balanced. Balanced accuracy is the right metric to track, and correcting for the class prior matters.
 4. The far group is still the weakest part (0.59 accuracy).
+5. **Kaggle public score 0.6165 (2026-10-19).**
+   - It is far below CV plain accuracy (0.775) and closer to CV balanced accuracy (0.682). So the leaderboard behaves like a class-balanced metric: either the test set is close to balanced, or the hidden weights favour the rare classes. We cannot tell which, but balanced accuracy is the right CV target either way, which supports finding 3.
+   - The remaining gap of about 0.07 is partly noise. The public leaderboard scores only part of the 490 test rows, so its standard error is about ±0.03. The rest may come from hidden weights favouring hard classes (2, 8 and 10 have recall of only 0.5–0.6) or from the mild train/test shift (adversarial AUC 0.576).

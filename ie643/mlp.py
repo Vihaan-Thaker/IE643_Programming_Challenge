@@ -99,9 +99,13 @@ def fit(X, y, cfg, seed=0, X_val=None, y_val=None):
 
 
 @torch.no_grad()
-def predict_proba(model, X):
+def predict_logits(model, X):
     model.eval()
-    return torch.softmax(model(torch.as_tensor(X, dtype=torch.float32)), dim=1).numpy()
+    return model(torch.as_tensor(X, dtype=torch.float32)).numpy()
+
+
+def predict_proba(model, X):
+    return torch.softmax(torch.as_tensor(predict_logits(model, X)), dim=1).numpy()
 
 
 def run_cv(X, y, groups, fold, cfg, seeds=(0, 1, 2)):
