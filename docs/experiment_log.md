@@ -146,3 +146,17 @@ Scripts and console logs: `experiments/` (see its README). Final training: `scri
 **Final ensembles** (fully inductive: Train_Data + supplementary only; 3 teacher seeds, 10 student seeds):
 - A: β = 3, τ = 1 → `submissions/final_A_beta3_tau1.csv`
 - B: β = 3, τ = 1.5 → `submissions/final_B_beta3_tau1.5.csv`
+
+**Kaggle scores (2026-10-19):** A (β = 3) 0.6512; B (β = 3, τ = 1.5) 0.6616. The previous best is 0.6619.
+- A and B change only 14 and 29 test predictions, so these differences are within public-leaderboard noise.
+- Neither is a meaningful change. Final selections: the 0.6619 submission and B.
+
+## 05 — Teammate's labels for the 72 clean unlabelled rows (2026-10-19)
+
+- **Source:** files from the teammate's work in `ie-643-2026-programming-challenge/teammate_labels/` (logistic regression and 5-NN cosine on 118 PCs of clean rows).
+- **Agreement:** the two methods agree on 93.1% of rows. Our G-teacher agrees with them on 93–94%; where it disagrees, it is almost 100% confident.
+- **Experiment** (e9; 3 seeds × 5 folds, compared run by run with the β = 3 student at 0.714): move the 72 rows from "unlabelled, teacher soft labels" to "labelled, hard teammate label".
+  - Provided labels as-is: 0.711 (−0.002, se 0.003).
+  - Same recipe regenerated inside each fold, which is leak-free: 0.710 (−0.004).
+  - No gain: the student already learns these rows from the teacher. **Not used.**
+- **Rules note:** logistic regression is a single-layer softmax network, but k-NN is not an MLP/CNN. If such labels were ever used in a submission, only an MLP-based version would be acceptable.

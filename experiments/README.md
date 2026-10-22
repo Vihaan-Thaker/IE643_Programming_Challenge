@@ -30,6 +30,7 @@ The scripts must run in order, because later ones load the earlier ones' outputs
 | e6 | **Self-training on test rows. Experiment only, NOT used in any submission** | Worse: −0.007 to −0.012 |
 | e7 | Confirm β = 3, τ = 1.5 over 3 seeds | β = 3: +0.005, no cost. τ = 1.5: +0.004 balanced but −0.016 accuracy, −0.046 far group |
 | e8 | How much of G can E predict? Classify through predicted G | R² ≈ 0.47 overall, ≈ 0.05 in the far group. Through predicted G: 0.657–0.667, below the student |
+| e9 | Teammate's labels for the 72 clean unlabelled rows (logistic regression on PCA-118) as hard labels | No gain: −0.002 as-is, −0.004 regenerated per fold. The G-teacher already agrees with them on 93–94% |
 
 **Code version caveat for e1:** e1's student rows ran with the first version of the soft loss, which had no prior
 shift. With the current `ie643/distill.py` the default is `adjust=True`. To reproduce those rows, pass

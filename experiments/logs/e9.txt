@@ -1,0 +1,12 @@
+provided labels (as-is) done (296s)
+labels regenerated per fold done (626s)
+                             balanced accuracy  accuracy  accuracy: clean  accuracy: deformed  accuracy: far
+config                                                                                                      
+current student (beta 3)                 0.714     0.793            0.949               0.799          0.607
+provided labels (as-is)                  0.711     0.792            0.954               0.798          0.602
+labels regenerated per fold              0.710     0.792            0.952               0.798          0.600
+provided labels (as-is) vs current, balanced accuracy: -0.002 (se 0.003, 7/15 higher)
+provided labels (as-is) vs current, accuracy: -0.001 (se 0.003, 5/15 higher)
+labels regenerated per fold vs current, balanced accuracy: -0.004 (se 0.004, 6/15 higher)
+labels regenerated per fold vs current, accuracy: -0.001 (se 0.003, 5/15 higher)
+

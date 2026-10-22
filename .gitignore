@@ -16,3 +16,6 @@ checkpoints/
 
 # Intermediate experiment results
 experiments/cache/
+
+# Assembled hand-in folder
+handin/
